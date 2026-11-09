@@ -102,7 +102,10 @@
                         <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span></p>
                     </div>
                 </div>
-                <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="openHoldBillModal()" class="bg-red-800 hover:bg-red-900 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow transition">พักบิล [F8]</button>
+                    <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
+                </div>
             </div>
         </header>
         <main class="w-full px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -213,6 +216,55 @@
                         <!-- รายการสินค้าแสดงที่นี่ -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= Hold Bill Popup (พักบิล F8) ================= -->
+    <div id="hold-bill-modal" class="hidden fixed inset-0 bg-black/70 z-[110] flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-red-100 p-6 flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3 mb-5">
+                <h3 class="text-base font-bold text-gray-800">พักบิลขาย</h3>
+                <button onclick="closeHoldBillModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold">✕</button>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <!-- บิลช่องที่ 1 -->
+                <div class="border-2 border-dashed border-gray-300 rounded-2xl p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition min-h-[140px] relative">
+                    <div id="hold-status-1" class="text-xs text-gray-500 mb-2 text-center font-medium">ว่าง</div>
+                    <button onclick="holdCurrentBill(0)" class="w-full bg-white border border-gray-300 hover:bg-red-50 text-gray-700 font-bold py-2 rounded-xl shadow-sm text-xs mb-2 transition flex items-center justify-center gap-1">
+                        <span class="text-red-600 text-sm font-bold">+</span> พักบิล
+                    </button>
+                    <button onclick="clearHoldBill(0)" class="w-full bg-gray-200 hover:bg-red-600 hover:text-white text-gray-700 py-1.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+                        🗑️ ล้าง
+                    </button>
+                </div>
+
+                <!-- บิลช่องที่ 2 -->
+                <div class="border-2 border-dashed border-gray-300 rounded-2xl p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition min-h-[140px] relative">
+                    <div id="hold-status-2" class="text-xs text-gray-500 mb-2 text-center font-medium">ว่าง</div>
+                    <button onclick="holdCurrentBill(1)" class="w-full bg-white border border-gray-300 hover:bg-red-50 text-gray-700 font-bold py-2 rounded-xl shadow-sm text-xs mb-2 transition flex items-center justify-center gap-1">
+                        <span class="text-red-600 text-sm font-bold">+</span> พักบิล
+                    </button>
+                    <button onclick="clearHoldBill(1)" class="w-full bg-gray-200 hover:bg-red-600 hover:text-white text-gray-700 py-1.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+                        🗑️ ล้าง
+                    </button>
+                </div>
+
+                <!-- บิลช่องที่ 3 -->
+                <div class="border-2 border-dashed border-gray-300 rounded-2xl p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition min-h-[140px] relative">
+                    <div id="hold-status-3" class="text-xs text-gray-500 mb-2 text-center font-medium">ว่าง</div>
+                    <button onclick="holdCurrentBill(2)" class="w-full bg-white border border-gray-300 hover:bg-red-50 text-gray-700 font-bold py-2 rounded-xl shadow-sm text-xs mb-2 transition flex items-center justify-center gap-1">
+                        <span class="text-red-600 text-sm font-bold">+</span> พักบิล
+                    </button>
+                    <button onclick="clearHoldBill(2)" class="w-full bg-gray-200 hover:bg-red-600 hover:text-white text-gray-700 py-1.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+                        🗑️ ล้าง
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center text-[11px] text-gray-400 mt-2">
+                คลิก "พักบิล" เพื่อบันทึกบิลปัจจุบัน หรือคลิกที่สถานะบิลเพื่อดึงข้อมูลกลับมาขายต่อ
             </div>
         </div>
     </div>
@@ -555,8 +607,9 @@
 
         let currentUser = null;
         let cartItems = [];
+        let heldBills = [null, null, null]; // เก็บข้อมูลบิลที่พักไว้ 3 ช่อง
         let currentReportMode = 'monthly';
-        let currentSortOrder = 'none'; // 'none', 'asc', 'desc'
+        let currentSortOrder = 'none';
 
         // ข้อมูลสินค้าจาก Google Sheets (อัปเดตหมวดหมู่ตามคำขอ: อาหารสุนัข, อาหารแมว, สัตว์ฟันแทะ, เปียกBuzz, Topfeed, ยาและเวชภัณฑ์)
         let productsFromSheet = [
@@ -794,14 +847,20 @@
             filterProducts();
         }
 
-        // ระบบ F1 Key Shortcut & Fullscreen Search Popup
+        // ระบบ F1, F8 Shortcut & Fullscreen Search Popup
         window.addEventListener('keydown', function(e) {
-            if (e.key === 'F1' && currentUser && currentUser.role === 'staff') {
-                e.preventDefault();
-                openF1Modal();
+            if (currentUser && currentUser.role === 'staff') {
+                if (e.key === 'F1') {
+                    e.preventDefault();
+                    openF1Modal();
+                } else if (e.key === 'F8') {
+                    e.preventDefault();
+                    openHoldBillModal();
+                }
             }
             if (e.key === 'Escape') {
                 closeF1Modal();
+                closeHoldBillModal();
             }
         });
 
@@ -856,6 +915,65 @@
         function addToCartFromF1(name, price) {
             addToCart(name, price);
             closeF1Modal();
+        }
+
+        // ระบบพักบิล (Hold Bill F8)
+        function openHoldBillModal() {
+            document.getElementById('hold-bill-modal').classList.remove('hidden');
+            renderHoldBillUI();
+        }
+
+        function closeHoldBillModal() {
+            document.getElementById('hold-bill-modal').classList.add('hidden');
+        }
+
+        function holdCurrentBill(index) {
+            if (cartItems.length === 0) {
+                alert('ไม่มีรายการสินค้าในตะกร้าสำหรับพักบิล');
+                return;
+            }
+            let totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            heldBills[index] = {
+                items: JSON.parse(JSON.stringify(cartItems)),
+                total: totalAmount,
+                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+            };
+            cartItems = [];
+            renderCart();
+            renderHoldBillUI();
+            closeHoldBillModal();
+            alert(`พักบิลสำเร็จในช่องที่ ${index + 1}`);
+        }
+
+        function restoreHoldBill(index) {
+            if (!heldBills[index]) return;
+            cartItems = heldBills[index].items;
+            heldBills[index] = null;
+            renderCart();
+            renderHoldBillUI();
+            closeHoldBillModal();
+        }
+
+        function clearHoldBill(index) {
+            heldBills[index] = null;
+            renderHoldBillUI();
+        }
+
+        function renderHoldBillUI() {
+            for (let i = 0; i < 3; i++) {
+                const statusBox = document.getElementById(`hold-status-${i+1}`);
+                if (heldBills[i]) {
+                    statusBox.innerHTML = `
+                        <div class="cursor-pointer text-red-700 font-bold hover:underline" onclick="restoreHoldBill(${i})">
+                            บิล #${i+1} (${heldBills[i].items.length} รายการ)<br>
+                            <span class="text-xs text-gray-600">${heldBills[i].total.toLocaleString()} ฿</span><br>
+                            <span class="text-[10px] text-gray-400">${heldBills[i].time}</span>
+                        </div>
+                    `;
+                } else {
+                    statusBox.innerHTML = `<span class="text-xs text-gray-400">ว่าง</span>`;
+                }
+            }
         }
 
         // ระบบ POS พนักงาน & ตะกร้าสินค้า
