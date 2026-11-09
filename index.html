@@ -160,9 +160,21 @@
                 <div>
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-base font-bold text-red-700">🧾 ตะกร้าสินค้า</h2>
-                        <button onclick="clearCart()" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🗑️ ล้างจอ</button>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="openMemberModal()" class="bg-red-700 hover:bg-red-800 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold transition shadow-sm">👥 ลูกค้าสมาชิก [F4]</button>
+                            <button onclick="clearCart()" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🗑️ ล้างจอ</button>
+                        </div>
                     </div>
-                    <div class="overflow-y-auto max-h-[calc(100vh-340px)] min-h-[300px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
+                    <!-- ส่วนแสดงข้อมูลสมาชิกลูกค้าที่เลือก -->
+                    <div id="selected-member-display" class="hidden mb-3 bg-red-50 border border-red-200 p-2.5 rounded-xl text-xs flex justify-between items-center">
+                        <div>
+                            <span class="font-bold text-red-800 block">👤 สมาชิก: <span id="disp-owner" class="text-gray-900"></span> (น้อง: <span id="disp-pet" class="text-gray-900"></span>)</span>
+                            <span class="text-[11px] text-gray-600">📞 <span id="disp-phone"></span> | 🏠 <span id="disp-address"></span></span>
+                        </div>
+                        <button onclick="clearSelectedMember()" class="text-red-500 hover:text-red-700 font-bold text-sm px-1.5" title="เปลี่ยนสมาชิก">✕</button>
+                    </div>
+
+                    <div class="overflow-y-auto max-h-[calc(100vh-380px)] min-h-[260px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
                         <table class="w-full text-left">
                             <thead>
                                 <tr class="text-gray-500 border-b">
@@ -187,6 +199,63 @@
             </div>
         </main>
     </div>
+
+    <!-- ================= Member Popup Modal (ลูกค้าสมาชิก) ================= -->
+    <div id="member-modal" class="hidden fixed inset-0 bg-black/70 z-[130] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border border-red-200 p-6 relative flex flex-col max-h-[90vh]">
+            <button onclick="closeMemberModal()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 font-bold text-lg">✕</button>
+            
+            <!-- View 1: Member List & Search -->
+            <div id="member-view-list" class="flex flex-col flex-grow overflow-hidden">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-4 pr-8">
+                    <h3 class="text-base font-bold text-red-700 flex items-center gap-2"><span>👥</span> เลือกลูกค้าสมาชิก (Member Directory)</h3>
+                    <button onclick="openAddMemberView()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow transition">➕ เพิ่มสมาชิกใหม่</button>
+                </div>
+                
+                <div class="mb-4">
+                    <input type="text" id="memberSearchInput" onkeyup="filterMembers()" placeholder="🔍 ค้นหาจากชื่อน้อง, ชื่อเจ้าของ, เบอร์โทร หรือที่อยู่..." class="w-full border border-gray-300 rounded-2xl px-4 py-3 text-xs focus:ring-2 focus:ring-red-500 focus:outline-none shadow-inner">
+                </div>
+
+                <div class="overflow-y-auto flex-grow space-y-2 pr-1" id="member-list-container">
+                    <!-- รายการสมาชิกจะถูกเรนเดอร์ที่นี่ -->
+                </div>
+            </div>
+
+            <!-- View 2: Add / Edit Member Form -->
+            <div id="member-view-form" class="hidden flex flex-col flex-grow overflow-hidden">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-4 pr-8">
+                    <h3 id="member-form-title" class="text-base font-bold text-red-700 flex items-center gap-2"><span>📝</span> เพิ่มสมาชิกใหม่</h3>
+                    <button onclick="backToMemberList()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl font-semibold transition">⬅️ ย้อนกลับ</button>
+                </div>
+
+                <form onsubmit="saveMemberForm(event)" class="space-y-3 text-xs overflow-y-auto flex-grow pr-1">
+                    <input type="hidden" id="edit-member-index" value="-1">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">ชื่อน้อง (สัตว์เลี้ยง)</label>
+                        <input type="text" id="form-pet-name" required placeholder="เช่น หมีพู / ซุส กิ๊ฟ มะลิ" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">ชื่อเจ้าของ</label>
+                        <input type="text" id="form-owner-name" required placeholder="เช่น ปะป๊า / ลิลลี่" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">ที่อยู่</label>
+                        <input type="text" id="form-address" required placeholder="เช่น ศรีไพศาล / สถานีสัตว์เลี้ยง" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                        <input type="text" id="form-phone" placeholder="เช่น 0813143599 หรือ จำไม่ได้" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                    <div class="pt-3">
+                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition text-xs">
+                            💾 บันทึกข้อมูลสมาชิก
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <!-- ================= Cash Drawer Popup Modal (เปิดลิ้นชัก รับ/จ่าย) ================= -->
     <div id="cash-drawer-modal" class="hidden fixed inset-0 bg-black/70 z-[120] flex items-center justify-center p-4 backdrop-blur-sm">
@@ -655,6 +724,15 @@
         let currentReportMode = 'monthly';
         let currentSortOrder = 'none'; // 'none', 'asc', 'desc'
         let currentDrawerType = ''; // 'income' หรือ 'expense'
+        let selectedMemberData = null; // ข้อมูลสมาชิกที่เลือกปัจจุบัน
+
+        // ข้อมูลสมาชิก Mockup ตามที่ระบุ
+        let membersData = [
+            { petName: "หมีพู", ownerName: "ปะป๊า", address: "ศรีไพศาล", phone: "0813143599" },
+            { petName: "ฮอร์มุซ", ownerName: "ลิลลี่", address: "มารวย", phone: "จำไม่ได้" },
+            { petName: "ซุส กิ๊ฟ มะลิ กัส พะโล้", ownerName: "มะม๊า", address: "สถานีสัตว์เลี้ยง", phone: "0867005280" },
+            { petName: "โจอี้ ชิล่า ราอน", ownerName: "มีมี่สุดสวย", address: "ปราสาทแห่งเพชรพลอย", phone: "0659252594" }
+        ];
 
         // ข้อมูลสินค้าจาก Google Sheets
         let productsFromSheet = [
@@ -884,12 +962,15 @@
             filterProducts();
         }
 
-        // ระบบ F1 Key Shortcut, F8 พักบิล & Fullscreen Search Popup
+        // ระบบ F1 Key Shortcut, F4 ลูกค้าสมาชิก, F8 พักบิล & Fullscreen Search Popup
         window.addEventListener('keydown', function(e) {
             if (currentUser && currentUser.role === 'staff') {
                 if (e.key === 'F1') {
                     e.preventDefault();
                     openF1Modal();
+                } else if (e.key === 'F4') {
+                    e.preventDefault();
+                    openMemberModal();
                 } else if (e.key === 'F8') {
                     e.preventDefault();
                     openHoldBillModal();
@@ -899,6 +980,7 @@
                 closeF1Modal();
                 closeHoldBillModal();
                 closeCashDrawerModal();
+                closeMemberModal();
             }
         });
 
@@ -953,6 +1035,121 @@
         function addToCartFromF1(name, price) {
             addToCart(name, price);
             closeF1Modal();
+        }
+
+        // ================= ระบบลูกค้าสมาชิก (Member Management) =================
+        function openMemberModal() {
+            document.getElementById('member-modal').classList.remove('hidden');
+            backToMemberList();
+            document.getElementById('memberSearchInput').value = '';
+            renderMemberList(membersData);
+            setTimeout(() => {
+                document.getElementById('memberSearchInput').focus();
+            }, 100);
+        }
+
+        function closeMemberModal() {
+            document.getElementById('member-modal').classList.add('hidden');
+        }
+
+        function backToMemberList() {
+            document.getElementById('member-view-form').classList.add('hidden');
+            document.getElementById('member-view-list').classList.remove('hidden');
+            renderMemberList(membersData);
+        }
+
+        function openAddMemberView() {
+            document.getElementById('member-view-list').classList.add('hidden');
+            document.getElementById('member-view-form').classList.remove('hidden');
+            document.getElementById('member-form-title').innerHTML = '<span>➕</span> เพิ่มสมาชิกใหม่';
+            document.getElementById('edit-member-index').value = '-1';
+            document.getElementById('form-pet-name').value = '';
+            document.getElementById('form-owner-name').value = '';
+            document.getElementById('form-address').value = '';
+            document.getElementById('form-phone').value = '';
+        }
+
+        function openEditMemberView(index) {
+            const m = membersData[index];
+            document.getElementById('member-view-list').classList.add('hidden');
+            document.getElementById('member-view-form').classList.remove('hidden');
+            document.getElementById('member-form-title').innerHTML = '<span>✏️</span> แก้ไขรายละเอียดสมาชิก';
+            document.getElementById('edit-member-index').value = index;
+            document.getElementById('form-pet-name').value = m.petName;
+            document.getElementById('form-owner-name').value = m.ownerName;
+            document.getElementById('form-address').value = m.address;
+            document.getElementById('form-phone').value = m.phone;
+        }
+
+        function filterMembers() {
+            const keyword = document.getElementById('memberSearchInput').value.toLowerCase();
+            const filtered = membersData.filter(m => 
+                m.petName.toLowerCase().includes(keyword) || 
+                m.ownerName.toLowerCase().includes(keyword) || 
+                m.address.toLowerCase().includes(keyword) || 
+                m.phone.toLowerCase().includes(keyword)
+            );
+            renderMemberList(filtered);
+        }
+
+        function renderMemberList(list) {
+            const container = document.getElementById('member-list-container');
+            container.innerHTML = '';
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">ไม่พบข้อมูลสมาชิกที่คุณค้นหา</div>`;
+                return;
+            }
+            list.forEach((m, idx) => {
+                const originalIndex = membersData.indexOf(m);
+                const card = document.createElement('div');
+                card.className = 'border border-gray-200 hover:border-red-300 bg-gray-50/50 rounded-2xl p-3 flex justify-between items-center transition';
+                card.innerHTML = `
+                    <div class="cursor-pointer flex-grow" onclick="selectMember(${originalIndex})">
+                        <div class="font-bold text-gray-900 text-xs">🐶 ชื่อน้อง: <span class="text-red-700">${m.petName}</span> (เจ้าของ: ${m.ownerName})</div>
+                        <div class="text-[11px] text-gray-500 mt-0.5">🏠 ที่อยู่: ${m.address} | 📞 เบอร์โทร: ${m.phone}</div>
+                    </div>
+                    <div class="flex items-center gap-1.5 pl-2">
+                        <button onclick="openEditMemberView(${originalIndex})" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition" title="แก้ไข">✏️ แก้ไข</button>
+                        <button onclick="selectMember(${originalIndex})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-xl text-[11px] font-bold shadow-sm transition">เลือก</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectMember(index) {
+            selectedMemberData = membersData[index];
+            document.getElementById('disp-owner').innerText = selectedMemberData.ownerName;
+            document.getElementById('disp-pet').innerText = selectedMemberData.petName;
+            document.getElementById('disp-phone').innerText = selectedMemberData.phone;
+            document.getElementById('disp-address').innerText = selectedMemberData.address;
+            document.getElementById('selected-member-display').classList.remove('hidden');
+            closeMemberModal();
+        }
+
+        function clearSelectedMember() {
+            selectedMemberData = null;
+            document.getElementById('selected-member-display').classList.add('hidden');
+        }
+
+        function saveMemberForm(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('edit-member-index').value);
+            const petName = document.getElementById('form-pet-name').value.trim();
+            const ownerName = document.getElementById('form-owner-name').value.trim();
+            const address = document.getElementById('form-address').value.trim();
+            const phone = document.getElementById('form-phone').value.trim();
+
+            if (index === -1) {
+                // เพิ่มสมาชิกใหม่
+                membersData.push({ petName, ownerName, address, phone });
+                alert('เพิ่มข้อมูลสมาชิกใหม่เรียบร้อยแล้ว!');
+            } else {
+                // แก้ไขสมาชิกเดิม
+                membersData[index] = { petName, ownerName, address, phone };
+                alert('แก้ไขข้อมูลสมาชิกเรียบร้อยแล้ว!');
+            }
+            backToMemberList();
         }
 
         // ================= ระบบเปิดลิ้นชัก (Cash Drawer) =================
@@ -1155,7 +1352,8 @@
                 alert('กรุณาเลือกสินค้าใส่ตะกร้าก่อนทำรายการ');
                 return;
             }
-            alert('บันทึกการขายและตัดสต็อกเชื่อมโยง Google Sheets เรียบร้อย!');
+            const memberInfo = selectedMemberData ? ` [สมาชิก: ${selectedMemberData.ownerName} (น้อง ${selectedMemberData.petName})]` : '';
+            alert(`บันทึกการขายและตัดสต็อก${memberInfo} เรียบร้อย!`);
             clearCart();
         }
 
