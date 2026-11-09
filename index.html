@@ -96,7 +96,7 @@
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
-                    <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
+                    <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">Pet's Station</span>
                     <div>
                         <h1 class="text-base font-bold">ระบบปฏิบัติการหน้าร้าน & สต็อก (Staff Hub)</h1>
                         <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="staff-user-display" class="font-semibold underline">พนักงาน</span></p>
@@ -108,7 +108,7 @@
         <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
             <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-                    <h2 class="text-base font-bold text-red-700">🛒 POS & คลังสินค้า (Google Sheets)</h2>
+                    <h2 class="text-base font-bold text-red-700">🛒 POS & คลังสินค้า</h2>
                     <input type="text" id="productSearchInput" onkeyup="filterProducts()" placeholder="🔍 ค้นหารหัส, ชื่อสินค้า, หรือยี่ห้อ..." class="border border-gray-300 rounded-xl px-3 py-1.5 text-xs w-full md:w-64 focus:ring-2 focus:ring-red-500 focus:outline-none">
                 </div>
                 
@@ -116,11 +116,11 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-red-50 text-red-800 text-xs sticky top-0 font-semibold">
                             <tr>
-                                <th class="p-2.5">รหัส (A)</th>
-                                <th class="p-2.5">ชื่อสินค้า (B)</th>
-                                <th class="p-2.5">ยี่ห้อ/ประเภท (C)</th>
-                                <th class="p-2.5">หน่วย (D)</th>
-                                <th class="p-2.5 text-right">ราคาขาย (G)</th>
+                                <th class="p-2.5">รหัส</th>
+                                <th class="p-2.5">ชื่อสินค้า</th>
+                                <th class="p-2.5">ยี่ห้อ/ประเภท</th>
+                                <th class="p-2.5">หน่วย</th>
+                                <th class="p-2.5 text-right">ราคาขาย</th>
                                 <th class="p-2.5 text-center">เลือก</th>
                             </tr>
                         </thead>
@@ -157,7 +157,7 @@
         <header class="bg-red-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center space-x-3">
-                    <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">🐾 Pet's Station</span>
+                    <span class="bg-white text-red-700 font-bold p-2 rounded-lg shadow text-lg">Pet's Station</span>
                     <div>
                         <h1 class="text-base font-bold">ระบบบัญชีและตรวจสอบ (Audit & Accounting Hub)</h1>
                         <p class="text-xs text-red-200">ผู้ใช้งาน: <span id="current-user-display" class="font-semibold underline">นักบัญชี</span></p>
@@ -494,46 +494,46 @@
         // ข้อมูลสินค้าจาก Google Sheets (อัปเดตหมวดหมู่ตามคำขอ: อาหารสุนัข, อาหารแมว, สัตว์ฟันแทะ, เปียกBuzz, Topfeed, ยาและเวชภัณฑ์)
         let productsFromSheet = [
             // 1. หมวด: อาหารสุนัข
-            { code: "DOG-001", name: "SmartHeart Adult (3kg)", brand: "อาหารสุนัข", unit: "ถุง", price: 210 },
-            { code: "DOG-002", name: "Royal Canin Mini Adult (2kg)", brand: "อาหารสุนัข", unit: "ถุง", price: 480 },
-            { code: "DOG-003", name: "Pedigree Chicken & Vegetable (3kg)", brand: "อาหารสุนัข", unit: "ถุง", price: 235 },
-            { code: "DOG-004", name: "Pro Plan Adult Small Breed (2.5kg)", brand: "อาหารสุนัข", unit: "ถุง", price: 590 },
-            { code: "DOG-005", name: "DoggyMan Premium (1.5kg)", brand: "อาหารสุนัข", unit: "ถุง", price: 195 },
+            { code: "202407260002", name: "Kaniva หมา รสไก่ 1 กก.", brand: "อาหารสุนัข", unit: "ถุง", price: 150 },
+            { code: "8850477015951", name: "Luvcare สุนัขพันธุ์กลาง รสตับ 500g", brand: "อาหารสุนัข", unit: "ถุง", price: 85 },
+            { code: "8850477033337", name: "SMH gold holistic สุนัขโต 1.5kg.", brand: "อาหารสุนัข", unit: "ถุง", price: 275 },
+            { code: "8850477037014", name: "Apro โต ตับย่าง 1 กก.", brand: "อาหารสุนัข", unit: "ถุง", price: 60 },
+            { code: "8851759450385", name: "JH Meat as Meals รสไก่เม็ดนิ่ม 500g.", brand: "อาหารสุนัข", unit: "ถุง", price: 219 },
 
             // 2. หมวด: อาหารแมว
             { code: "8859720701016", name: "Smillie แมว รสแซลมอน", brand: "อาหารแมว", unit: "ถุง", price: 50 },
-            { code: "CAT-002", name: "Ceto ทูน่า 20กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 980 },
-            { code: "CAT-003", name: "Ceto ทะเล 20กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 980 },
-            { code: "CAT-004", name: "PurinaONE Indoor 6.6กก.", brand: "อาหารแมว", unit: "กระสอบ", price: 1370 },
-            { code: "CAT-005", name: "Royal Canin Fit 32 (10kg)", brand: "อาหารแมว", unit: "กระสอบ", price: 2150 },
+            { code: "8850011066999", name: "PurinaOne HairBall 380g.", brand: "อาหารแมว", unit: "ถุง", price: 140 },
+            { code: "8850477002500", name: "Me-o Gold อินดอร์ 400g", brand: "อาหารแมว", unit: "ถุง", price: 99 },
+            { code: "8850477022140", name: "Zoi Cat ทูน่า 1กก..", brand: "อาหารแมว", unit: "ถุง", price: 60 },
+            { code: "8851111045013", name: "Ginno ไก่และทูน่า 380 กรัม", brand: "อาหารแมว", unit: "ถุง", price: 65 },
 
             // 3. หมวด: สัตว์ฟันแทะ
-            { code: "ROD-001", name: "SMH แฮมเตอร์ แบ่งถุง", brand: "สัตว์ฟันแทะ", unit: "ถุง", price: 45 },
-            { code: "ROD-002", name: "Optimum แฮมเตอร์ (1kg)", brand: "สัตว์ฟันแทะ", unit: "ถุง", price: 85 },
-            { code: "ROD-003", name: "Versele-Laga Cuni Complete", brand: "สัตว์ฟันแทะ", unit: "ถุง", price: 320 },
-            { code: "ROD-004", name: "Vitakraft Menu สำหรับกระต่าย", brand: "สัตว์ฟันแทะ", unit: "กล่อง", price: 180 },
-            { code: "ROD-005", name: "หญ้าอัลฟัลฟา นำเข้า (500g)", brand: "สัตว์ฟันแทะ", unit: "ห่อ", price: 110 },
+            { code: "202403200003", name: "Alfafa สับเกรดลัคชู 500g.", brand: "สัตว์ฟันแทะ", unit: "ถุง", price: 75 },
+            { code: "202403200002", name: "Timothy 500g", brand: "สัตว์ฟันแทะ", unit: "ถุง", price: 75 },
+            { code: "8850477017894", name: "SMH ZELECT Adult 500 กรัม", brand: "สัตว์ฟันแทะ", unit: "ถุง", price: 120 },
+            { code: "8859767903251", name: "PetHeng แฮมสเตอร์ รสตับ", brand: "สัตว์ฟันแทะ", unit: "ซอง", price: 69 },
+            { code: "8853527041733", name: "Bok dog กระต่ายสูตรเบอร์รี่ 1 กก.", brand: "สัตว์ฟันแทะ", unit: "ถุง", price: 70 },
 
-            // 4. หมวด: เปียกBuzz
-            { code: "BUZZ-001", name: "Buzz Netura อาหารเปียกสุนัข (ซอง)", brand: "เปียกBuzz", unit: "ซอง", price: 25 },
-            { code: "BUZZ-002", name: "Buzz Netura อาหารเปียกแมว รสทูน่า", brand: "เปียกBuzz", unit: "ซอง", price: 22 },
-            { code: "BUZZ-003", name: "Buzz Beyond อาหารเปียกเกรดโฮลิสติก", brand: "เปียกBuzz", unit: "กระป๋อง", price: 45 },
-            { code: "BUZZ-004", name: "Buzz Pouch แมวโต น้ำเกรวี่", brand: "เปียกBuzz", unit: "ซอง", price: 20 },
-            { code: "BUZZ-005", name: "Buzz Vcare อาหารเปียกสูตรพิเศษ", brand: "เปียกBuzz", unit: "กระป๋อง", price: 55 },
+            // 4. หมวด: เปียก
+            { code: "8859760301078", name: "Buzz/P CG01 ไก่เกรวี่ 70 กรัม", brand: "เปียก", unit: "ซอง", price: 18 },
+            { code: "8859739230439", name: "Kandy C1 Kichen ทูน่าเนื้อไก่ เกรวี่ 70g", brand: "เปียก", unit: "ซอง", price: 15 },
+            { code: "8859739210035", name: "P/kaniva indoor gravy tuna with chicken 70g.", brand: "เปียก", unit: "ซอง", price: 20 },
+            { code: "8851111011018", name: "Gino ปลาทูน่าหน้าแซลมอน 60 กรัม", brand: "เปียก", unit: "ซอง", price: 18 },
+            { code: "8857122849893", name: "Maria 7C ซาดีน+ปลาข้าวสาร 70g", brand: "เปียก", unit: "ซอง", price: 22 },
 
             // 5. หมวด: Topfeed
-            { code: "TF-001", name: "V15 อาหารเป็ดไข่", brand: "Topfeed", unit: "กระสอบ", price: 570 },
-            { code: "TF-002", name: "อาหารหมูอนุบาล (20กก.)", brand: "Topfeed", unit: "กระสอบ", price: 480 },
-            { code: "TF-003", name: "หัวอาหารไก่เนื้อ (30กก.)", brand: "Topfeed", unit: "กระสอบ", price: 650 },
-            { code: "TF-004", name: "อาหารกุ้งเล็ก (10กก.)", brand: "Topfeed", unit: "กระสอบ", price: 390 },
-            { code: "TF-005", name: "รำละเอียดสำหรับผสมอาหารสัตว์", brand: "Topfeed", unit: "กระสอบ", price: 220 },
+            { code: "20241401005", name: "อาหารหมูนมไก่ 1 กก.", brand: "Topfeed", unit: "ถุง", price: 35 },
+            { code: "20240410009", name: "ข้าวเปลือกสั้น 1 กก.", brand: "Topfeed", unit: "ถุง", price: 20 },
+            { code: "202312010002", name: "อาหารลูกไก่ 1 กก.", brand: "Topfeed", unit: "ถุง", price: 25 },
+            { code: "6810010000004", name: "จัมปูน 100g", brand: "Topfeed", unit: "ถุง", price: 35 },
+            { code: "202403200001", name: "V55L อาหารหมู่ใหญ่ 30 กก.", brand: "Topfeed", unit: "กระสอบ", price: 430 },
 
             // 6. หมวด: ยาและเวชภัณฑ์
-            { code: "MED-001", name: "Cobal ยาหยอดหู", brand: "ยาและเวชภัณฑ์", unit: "กล่อง", price: 120 },
-            { code: "MED-002", name: "เซนการ์ด สเมลลี่แอร์ 300 ml.", brand: "ยาและเวชภัณฑ์", unit: "ขวด", price: 80 },
-            { code: "MED-003", name: "ยาพยาธิลูกแมวและสุนัขแบบน้ำ", brand: "ยาและเวชภัณฑ์", unit: "ขวด", price: 50 },
-            { code: "MED-004", name: "ยาพยาธิสุนัข แบบเม็ด", brand: "ยาและเวชภัณฑ์", unit: "เม็ด", price: 30 },
-            { code: "MED-005", name: "ยาพยาธิ แบบฉีด", brand: "ยาและเวชภัณฑ์", unit: "ขวด", price: 100 }
+            { code: "18859284600", name: "Omega 3 บำรุงผิวและขน 10เม็ด", brand: "ยาและเวชภัณฑ์", unit: "แผง", price: 75 },
+            { code: "3182550914833", name: "RC RENAL 400g.", brand: "ยาและเวชภัณฑ์", unit: "ถุง", price: 365 },
+            { code: "3661103067374", name: "NexGard Spectra15-30kg/เม็ด", brand: "ยาและเวชภัณฑ์", unit: "เม็ด", price: 500 },
+            { code: "3182550771252", name: "RC GASTRO 2Kg", brand: "ยาและเวชภัณฑ์", unit: "ถุง", price: 1230 },
+            { code: "5414736038051", name: "Revolution Plus สุนัข 2.6-5.0 ม่วง กล่อง", brand: "ยาและเวชภัณฑ์", unit: "กล่อง", price: 950 }
         ];
 
         let journalEntries = [
