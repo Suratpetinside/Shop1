@@ -103,6 +103,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    <button onclick="openDrawerModal()" class="bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg text-xs font-semibold shadow border border-amber-500">💰 เปิดลิ้นชัก</button>
                     <button onclick="openHoldBillModal()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold shadow border border-red-600">📌 พักบิล [F8]</button>
                     <button onclick="handleLogout()" class="bg-red-800 hover:bg-red-900 px-3 py-1.5 rounded-lg text-xs font-semibold">ออกจากระบบ</button>
                 </div>
@@ -185,6 +186,63 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- ================= เปิดลิ้นชัก Popup Modal ================= -->
+    <div id="drawer-modal" class="hidden fixed inset-0 bg-black/70 z-[120] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-amber-200 p-6 relative">
+            
+            <!-- ปุ่มกากบาทปิดหน้าต่าง -->
+            <button onclick="closeDrawerModal()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 font-bold text-lg focus:outline-none">✕</button>
+
+            <div class="flex items-center gap-2 border-b border-gray-100 pb-3 mb-4">
+                <span class="text-xl">💰</span>
+                <h3 class="text-base font-bold text-amber-700">ระบบจัดการลิ้นชักเงินสด (Cash Drawer)</h3>
+            </div>
+
+            <!-- Step 1: เลือกประเภท รายรับ หรือ รายจ่าย -->
+            <div id="drawer-step-select" class="space-y-4">
+                <p class="text-xs text-gray-600">กรุณาเลือกประเภทรายการที่ต้องการบันทึกเปิดลิ้นชัก:</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectDrawerType('income')" class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-1 transition shadow-sm">
+                        <span class="text-2xl">📥</span>
+                        <span class="text-sm">บันทึกรายรับ</span>
+                    </button>
+                    <button onclick="selectDrawerType('expense')" class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 font-bold py-4 rounded-2xl flex flex-col items-center justify-center gap-1 transition shadow-sm">
+                        <span class="text-2xl">📤</span>
+                        <span class="text-sm">บันทึกรายจ่าย</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: ฟอร์มกรอกรายละเอียดและจำนวนเงิน -->
+            <div id="drawer-step-form" class="hidden space-y-3">
+                <div class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-xl border">
+                    <span id="drawer-type-badge" class="text-xs font-bold text-emerald-700">🟢 บันทึกรายรับเข้าลิ้นชัก</span>
+                    <button onclick="backToDrawerSelect()" class="text-xs text-gray-500 hover:text-red-600 font-semibold underline">← เปลี่ยนประเภท</button>
+                </div>
+
+                <form onsubmit="submitDrawerTransaction(event)" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">รายละเอียด / หมายเหตุ</label>
+                        <input type="text" id="drawerDesc" required placeholder="เช่น รับเงินทอนเพิ่ม / จ่ายค่าขนส่งสินค้า" class="w-full border border-gray-300 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">จำนวนเงิน (หน่วยเป็นบาท)</label>
+                        <div class="relative">
+                            <input type="number" step="0.01" min="0.01" id="drawerAmount" required placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-red-600 focus:ring-2 focus:ring-amber-500 focus:outline-none pr-10">
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 font-semibold">฿</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2 flex gap-2">
+                        <button type="button" onclick="backToDrawerSelect()" class="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition">ย้อนกลับ</button>
+                        <button type="submit" class="w-2/3 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl shadow transition">✨ บันทึกบัญชี & เปิดลิ้นชัก</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
     </div>
 
     <!-- ================= F1 Fullscreen Search Popup ================= -->
@@ -610,6 +668,7 @@
         let heldBills = [null, null, null]; // เก็บข้อมูลบิลที่พักไว้สูงสุด 3 ช่อง
         let currentReportMode = 'monthly';
         let currentSortOrder = 'none'; // 'none', 'asc', 'desc'
+        let currentDrawerType = 'income'; // 'income' หรือ 'expense'
 
         // ข้อมูลสินค้าจาก Google Sheets
         let productsFromSheet = [
@@ -783,8 +842,8 @@
 
             let filtered = productsFromSheet.filter(p => {
                 const matchKeyword = p.code.toLowerCase().includes(keyword) || 
-                                     p.name.toLowerCase().includes(keyword) || 
-                                     p.brand.toLowerCase().includes(keyword);
+                                   p.name.toLowerCase().includes(keyword) || 
+                                   p.brand.toLowerCase().includes(keyword);
                 const matchBrand = selectedBrand === "" || p.brand === selectedBrand;
                 const matchUnit = selectedUnit === "" || p.unit === selectedUnit;
                 return matchKeyword && matchBrand && matchUnit;
@@ -839,6 +898,81 @@
             filterProducts();
         }
 
+        // ระบบเปิดลิ้นชัก (Cash Drawer)
+        function openDrawerModal() {
+            document.getElementById('drawer-modal').classList.remove('hidden');
+            backToDrawerSelect();
+        }
+
+        function closeDrawerModal() {
+            document.getElementById('drawer-modal').classList.add('hidden');
+        }
+
+        function selectDrawerType(type) {
+            currentDrawerType = type;
+            document.getElementById('drawer-step-select').classList.add('hidden');
+            document.getElementById('drawer-step-form').classList.remove('hidden');
+            
+            const badge = document.getElementById('drawer-type-badge');
+            if (type === 'income') {
+                badge.className = "text-xs font-bold text-emerald-700";
+                badge.innerText = "🟢 บันทึกรายรับเข้าลิ้นชัก";
+            } else {
+                badge.className = "text-xs font-bold text-rose-700";
+                badge.innerText = "🔴 บันทึกรายจ่ายออกจากลิ้นชัก";
+            }
+            document.getElementById('drawerDesc').value = '';
+            document.getElementById('drawerAmount').value = '';
+            setTimeout(() => { document.getElementById('drawerDesc').focus(); }, 100);
+        }
+
+        function backToDrawerSelect() {
+            document.getElementById('drawer-step-form').classList.add('hidden');
+            document.getElementById('drawer-step-select').classList.remove('hidden');
+        }
+
+        function submitDrawerTransaction(e) {
+            e.preventDefault();
+            const desc = document.getElementById('drawerDesc').value.trim();
+            const amount = parseFloat(document.getElementById('drawerAmount').value);
+
+            if (!desc || isNaN(amount) || amount <= 0) {
+                alert('กรุณากรอกข้อมูลและจำนวนเงินให้ถูกต้อง');
+                return;
+            }
+
+            const today = "2026-11-07";
+            const txId = `DRW-${Math.floor(Math.random() * 8999 + 1000)}`;
+
+            if (currentDrawerType === 'income') {
+                journalEntries.unshift({
+                    date: today,
+                    id: txId,
+                    supplier: desc,
+                    account: "เงินสดในลิ้นชัก (Cash Drawer)",
+                    creditAcc: "รายรับอื่นๆ (Other Income)",
+                    amount: amount,
+                    type: "income"
+                });
+                alert(`✅ เปิดลิ้นชักและบันทึกรายรับ "${desc}" จำนวน ${amount.toLocaleString()} บาท เรียบร้อยแล้ว!`);
+            } else {
+                journalEntries.unshift({
+                    date: today,
+                    id: txId,
+                    supplier: desc,
+                    account: "ค่าใช้จ่ายเบ็ดเตล็ด (Miscellaneous Expense)",
+                    creditAcc: "เงินสดในลิ้นชัก (Cash Drawer)",
+                    amount: amount,
+                    type: "expense"
+                });
+                alert(`✅ เปิดลิ้นชักและบันทึกรายจ่าย "${desc}" จำนวน ${amount.toLocaleString()} บาท เรียบร้อยแล้ว!`);
+            }
+
+            closeDrawerModal();
+            filterJournalByDateRange();
+            updateFinancialStatements();
+        }
+
         // ระบบ F1 Key Shortcut, F8 พักบิล & Fullscreen Search Popup
         window.addEventListener('keydown', function(e) {
             if (currentUser && currentUser.role === 'staff') {
@@ -853,6 +987,7 @@
             if (e.key === 'Escape') {
                 closeF1Modal();
                 closeHoldBillModal();
+                closeDrawerModal();
             }
         });
 
