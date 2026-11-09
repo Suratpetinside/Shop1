@@ -118,7 +118,7 @@
                             <option value="กล่อง">กล่อง</option>
                             <option value="กระสอบ">กระสอบ</option>
                         </select>
-                        <input type="text" id="productSearchInput" onkeyup="handleSearchKeyup(event)" placeholder="🔍 ค้นหา (กด Enter เพิ่มสินค้า | F1 จอใหญ่)..." class="border border-gray-300 rounded-xl px-3 py-1.5 text-xs w-full md:w-64 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                        <input type="text" id="productSearchInput" onkeyup="handleSearchKeyup(event)" placeholder="🔍 ค้นหา & กด Enter เพิ่มสินค้า (F1 เปิดจอใหญ่)..." class="border border-gray-300 rounded-xl px-3 py-1.5 text-xs w-full md:w-64 focus:ring-2 focus:ring-red-500 focus:outline-none">
                     </div>
                 </div>
                 
@@ -145,22 +145,31 @@
 
             <div class="lg:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between">
                 <div>
-                    <h2 class="text-base font-bold text-red-700 mb-3">🧾 ตะกร้าสินค้า</h2>
-                    <div class="overflow-y-auto max-h-[calc(100vh-360px)] min-h-[280px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-base font-bold text-red-700">🧾 ตะกร้าสินค้า</h2>
+                        <button onclick="clearCart()" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🗑️ ล้างจอ</button>
+                    </div>
+                    <div class="overflow-y-auto max-h-[calc(100vh-340px)] min-h-[300px] mb-4 border border-gray-100 rounded-xl p-2 text-xs">
                         <table class="w-full text-left">
-                            <thead><tr class="text-gray-500 border-b"><th class="pb-2">รายการ</th><th class="pb-2 text-center w-16">จำนวน</th><th class="pb-2 text-right">ราคา</th><th class="pb-2 text-center w-10">ลบ</th></tr></thead>
-                            <tbody id="cartTableBody"><tr><td colspan="4" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr></tbody>
+                            <thead>
+                                <tr class="text-gray-500 border-b">
+                                    <th class="pb-2">รายการ</th>
+                                    <th class="pb-2 text-center">จำนวน</th>
+                                    <th class="pb-2 text-right">ราคา</th>
+                                    <th class="pb-2 text-center">ลบ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartTableBody">
+                                <tr><td colspan="4" class="text-center py-4 text-gray-400">ยังไม่มีสินค้าในตะกร้า</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
-                <div class="border-t pt-4 space-y-2">
-                    <div class="flex justify-between items-center text-sm font-bold">
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center text-sm font-bold mb-3">
                         <span>ยอดรวม:</span> <span id="cartTotalPrice" class="text-red-600 text-lg">0.00 ฿</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="clearCart()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition">🗑️ ล้างจอ</button>
-                        <button onclick="processCheckout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition">ยืนยันการขาย & ตัดสต็อก</button>
-                    </div>
+                    <button onclick="processCheckout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs">ยืนยันการขาย & ตัดสต็อก</button>
                 </div>
             </div>
         </main>
@@ -712,7 +721,7 @@
             });
         }
 
-        // ระบบค้นหาสินค้าแบบ Real-time พร้อม Filter หน่วยและ Sort ราคา
+        // ค้นหาหลัก พร้อมตัวกรองหน่วยและจัดเรียงราคา
         function filterProducts() {
             const keyword = document.getElementById('productSearchInput').value.toLowerCase();
             const selectedUnit = document.getElementById('unitFilterSelect').value;
@@ -725,7 +734,6 @@
                 return matchKeyword && matchUnit;
             });
 
-            // จัดเรียงราคา
             if (currentSortOrder === 'asc') {
                 filtered.sort((a, b) => a.price - b.price);
             } else if (currentSortOrder === 'desc') {
@@ -736,21 +744,26 @@
             return filtered;
         }
 
-        // กด Enter ที่ช่องค้นหาเพื่อเพิ่มสินค้าทันที
+        // กด Enter ในช่องค้นหาเพื่อเพิ่มสินค้าทันที
         function handleSearchKeyup(e) {
             filterProducts();
             if (e.key === 'Enter') {
-                const keyword = document.getElementById('productSearchInput').value.trim();
-                const currentFiltered = filterProducts();
-                if (currentFiltered.length > 0) {
-                    addToCart(currentFiltered[0].name, currentFiltered[0].price);
+                const keyword = document.getElementById('productSearchInput').value.trim().toLowerCase();
+                if(!keyword) return;
+                let filtered = productsFromSheet.filter(p => 
+                    p.code.toLowerCase().includes(keyword) || 
+                    p.name.toLowerCase().includes(keyword) || 
+                    p.brand.toLowerCase().includes(keyword)
+                );
+                if (filtered.length > 0) {
+                    addToCart(filtered[0].name, filtered[0].price);
                     document.getElementById('productSearchInput').value = '';
                     filterProducts();
                 }
             }
         }
 
-        // ฟังก์ชันสลับการเรียงลำดับราคาขาย (ถูกไปแพง / แพงไปถูก / ค่าเริ่มต้น)
+        // ฟังก์ชันสลับการเรียงลำดับราคาขาย
         function togglePriceSort() {
             const indicator = document.getElementById('sortIndicator');
             if (currentSortOrder === 'none' || currentSortOrder === 'desc') {
@@ -827,7 +840,7 @@
             closeF1Modal();
         }
 
-        // ระบบ POS พนักงาน (ตะกร้าสินค้า)
+        // ระบบ POS พนักงาน & ตะกร้าสินค้า
         function addToCart(name, price) {
             const existing = cartItems.find(i => i.name === name);
             if(existing) { 
@@ -854,11 +867,8 @@
         }
 
         function clearCart() {
-            if (cartItems.length === 0) return;
-            if (confirm('คุณต้องการล้างรายการสินค้าในตะกร้าทั้งหมดใช่หรือไม่?')) {
-                cartItems = [];
-                renderCart();
-            }
+            cartItems = [];
+            renderCart();
         }
 
         function renderCart() {
@@ -874,15 +884,15 @@
                 let sum = item.price * item.qty;
                 total += sum;
                 const row = document.createElement('tr');
-                row.className = 'border-b hover:bg-gray-50/50';
+                row.className = 'border-b border-gray-50 hover:bg-gray-50/50';
                 row.innerHTML = `
-                    <td class="py-2.5 font-medium text-gray-800">${item.name}</td>
+                    <td class="py-2.5 pr-2 font-medium text-gray-800">${item.name}</td>
                     <td class="py-2.5 text-center">
-                        <input type="number" min="1" value="${item.qty}" onchange="updateCartQty(${index}, this.value)" class="w-14 border border-gray-300 rounded-lg text-center p-1 text-xs focus:ring-2 focus:ring-red-500 focus:outline-none">
+                        <input type="number" min="1" value="${item.qty}" onchange="updateCartQty(${index}, this.value)" class="w-14 border border-gray-300 rounded-lg text-center py-1 text-xs focus:ring-1 focus:ring-red-500 focus:outline-none">
                     </td>
-                    <td class="py-2.5 text-right font-semibold text-gray-900">${sum.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                    <td class="py-2.5 text-right font-semibold text-gray-900">${sum.toLocaleString('en-US', { minimumFractionDigits: 2 })} ฿</td>
                     <td class="py-2.5 text-center">
-                        <button onclick="removeCartItem(${index})" class="text-red-500 hover:text-red-700 p-1 font-bold transition" title="ลบรายการนี้">🗑️</button>
+                        <button onclick="removeCartItem(${index})" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-1 rounded transition" title="ลบรายการ">🗑️</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -896,8 +906,7 @@
                 return;
             }
             alert('บันทึกการขายและตัดสต็อกเชื่อมโยง Google Sheets เรียบร้อย!');
-            cartItems = [];
-            renderCart();
+            clearCart();
         }
 
         // ฟังก์ชันระบบนักบัญชี (Audit Hub)
