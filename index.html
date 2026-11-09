@@ -109,7 +109,16 @@
             <div class="lg:col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex flex-col">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
                     <h2 class="text-base font-bold text-red-700">🛒 POS & คลังสินค้า</h2>
-                    <div class="flex items-center gap-2 w-full md:w-auto">
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <select id="brandFilterSelect" onchange="filterProducts()" class="border border-gray-300 rounded-xl px-2.5 py-1.5 text-xs bg-white text-gray-700 font-medium focus:ring-2 focus:ring-red-500 focus:outline-none">
+                            <option value="">🏢 ทุกยี่ห้อ/หมวด</option>
+                            <option value="อาหารสุนัข">อาหารสุนัข</option>
+                            <option value="อาหารแมว">อาหารแมว</option>
+                            <option value="สัตว์ฟันแทะ">สัตว์ฟันแทะ</option>
+                            <option value="เปียก">เปียก</option>
+                            <option value="Topfeed">Topfeed</option>
+                            <option value="ยาและเวชภัณฑ์">ยาและเวชภัณฑ์</option>
+                        </select>
                         <select id="unitFilterSelect" onchange="filterProducts()" class="border border-gray-300 rounded-xl px-2.5 py-1.5 text-xs bg-white text-gray-700 font-medium focus:ring-2 focus:ring-red-500 focus:outline-none">
                             <option value="">🏷️ ทุกหน่วย</option>
                             <option value="ถุง">ถุง</option>
@@ -118,7 +127,7 @@
                             <option value="กล่อง">กล่อง</option>
                             <option value="กระสอบ">กระสอบ</option>
                         </select>
-                        <input type="text" id="productSearchInput" onkeyup="handleSearchKeyup(event)" placeholder="🔍 ค้นหา & กด Enter เพิ่มสินค้า (F1)" class="border border-gray-300 rounded-xl px-3 py-1.5 text-xs w-full md:w-64 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                        <input type="text" id="productSearchInput" onkeyup="handleSearchKeyup(event)" placeholder="🔍 ค้นหา & กด Enter เพิ่มสินค้า (F1 เปิดจอใหญ่)..." class="border border-gray-300 rounded-xl px-3 py-1.5 text-xs w-full md:w-48 focus:ring-2 focus:ring-red-500 focus:outline-none">
                     </div>
                 </div>
                 
@@ -721,17 +730,19 @@
             });
         }
 
-        // ค้นหาหลัก พร้อมตัวกรองหน่วยและจัดเรียงราคา
+        // ค้นหาหลัก พร้อมตัวกรองยี่ห้อ/หมวด, หน่วย และจัดเรียงราคา
         function filterProducts() {
             const keyword = document.getElementById('productSearchInput').value.toLowerCase();
+            const selectedBrand = document.getElementById('brandFilterSelect').value;
             const selectedUnit = document.getElementById('unitFilterSelect').value;
 
             let filtered = productsFromSheet.filter(p => {
                 const matchKeyword = p.code.toLowerCase().includes(keyword) || 
                                      p.name.toLowerCase().includes(keyword) || 
                                      p.brand.toLowerCase().includes(keyword);
+                const matchBrand = selectedBrand === "" || p.brand === selectedBrand;
                 const matchUnit = selectedUnit === "" || p.unit === selectedUnit;
-                return matchKeyword && matchUnit;
+                return matchKeyword && matchBrand && matchUnit;
             });
 
             if (currentSortOrder === 'asc') {
@@ -750,11 +761,18 @@
             if (e.key === 'Enter') {
                 const keyword = document.getElementById('productSearchInput').value.trim().toLowerCase();
                 if(!keyword) return;
-                let filtered = productsFromSheet.filter(p => 
-                    p.code.toLowerCase().includes(keyword) || 
-                    p.name.toLowerCase().includes(keyword) || 
-                    p.brand.toLowerCase().includes(keyword)
-                );
+                const selectedBrand = document.getElementById('brandFilterSelect').value;
+                const selectedUnit = document.getElementById('unitFilterSelect').value;
+
+                let filtered = productsFromSheet.filter(p => {
+                    const matchKeyword = p.code.toLowerCase().includes(keyword) || 
+                                         p.name.toLowerCase().includes(keyword) || 
+                                         p.brand.toLowerCase().includes(keyword);
+                    const matchBrand = selectedBrand === "" || p.brand === selectedBrand;
+                    const matchUnit = selectedUnit === "" || p.unit === selectedUnit;
+                    return matchKeyword && matchBrand && matchUnit;
+                });
+
                 if (filtered.length > 0) {
                     addToCart(filtered[0].name, filtered[0].price);
                     document.getElementById('productSearchInput').value = '';
